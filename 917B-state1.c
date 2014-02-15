@@ -53,15 +53,15 @@
 	int THIRTY_SEVEN = 48;
 	int TWENTY_FIVE = 32;
 
-	int control = 25;
+	int control = 0;
 ////////////////////
 //** Arm Values **//
 ////////////////////
-	int BARRIER = 2350;	// Potentiometer value for arm to go over 12" barrier
-	int LOW = 1700;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
-	int BUMP = 1900;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
-	int HIGH = 2700;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
-	int PRE_HIGH = 4000;// Just before stretched maximum reach
+	int BARRIER = 2150;	// Potentiometer value for arm to go over 12" barrier
+	int LOW = 1420;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
+	int BUMP = 1600;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
+	int HIGH = 3000;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
+	//int PRE_HIGH = 4000;// Just before stretched maximum reach
 
 	int hold = 30; // Arbitrary Numbers tested: 45 too high, 30 holds, 25 holds
 
@@ -316,7 +316,10 @@ void noRamp(int direction, int distance)
 
 	void deploy()
 	{
-		intake(1);
+		//intake(1);
+		motor[LeftArm] = motor[RightArm] = 100;
+		wait10Msec(1);
+		motor[LeftArm] = motor[RightArm] = 0;
 	}
 
 	void pickUpBall(int goals)
@@ -425,9 +428,7 @@ void noRamp(int direction, int distance)
 		intake(-1);
 		wait1Msec(500); // outtake
 		moveStraight(-1, 0, 400); //move back away from goal...Apparently Safety is greater than move forward
-		motor[LeftArm] = motor[RightArm] = -127;
-		wait1Msec(800);
-		motor[LeftArm] = motor[RightArm] = 0;
+		liftDown();
 			// end score bucky
 		moveStraight(-1, 0, 1300); // now user readjust for first ballb
 		waitForButton();
@@ -748,7 +749,7 @@ task autonomous()
 			}
 			else if(SensorValue[AutonSelect] < UDIT)
 			{
-				RedUdit(); // projected 30 pts + spare change (6-14)
+				redUdit(); // projected 30 pts + spare change (6-14)
 			}
 			else if(SensorValue[AutonSelect] < DEVANSH)
 			{
@@ -924,7 +925,7 @@ task usercontrol()
 					Alex();
 				}
 				if (vexRT[Btn8R] == 1){
-					Alex2();
+					deploy();
 				}
 
 	} // end while update loop
