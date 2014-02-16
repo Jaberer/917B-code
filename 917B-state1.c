@@ -58,7 +58,7 @@
 //** Arm Values **//
 ////////////////////
 	int BARRIER = 2150;	// Potentiometer value for arm to go over 12" barrier
-	int LOW = 1420;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
+	int LOW = 1400;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
 	int BUMP = 1600;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
 	int HIGH = 3000;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
 	//int PRE_HIGH = 4000;// Just before stretched maximum reach
@@ -316,10 +316,7 @@ void noRamp(int direction, int distance)
 
 	void deploy()
 	{
-		//intake(1);
-		motor[LeftArm] = motor[RightArm] = 100;
-		wait10Msec(1);
-		motor[LeftArm] = motor[RightArm] = 0;
+		intake(1);
 	}
 
 	void pickUpBall(int goals)
@@ -839,7 +836,7 @@ task usercontrol()
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*0; // can only go up now
 		else // Full Manual
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*127;
-
+/* -- prototype arm presets
 		if(vexRT[Btn8D] == 1) // left bottom button to set to barrier height, may need testing
 		{
 			while(SensorValue[RightArmAngle] != BARRIER)
@@ -852,6 +849,7 @@ task usercontrol()
 				break;
 			}
 		}
+		*/
 					/*
 		//prototype arm code
 		if (vexRT[Btn8U] == 1){
