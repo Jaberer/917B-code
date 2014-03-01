@@ -57,10 +57,10 @@
 ////////////////////
 //** Arm Values **//
 ////////////////////
-	int BARRIER = 2230;	// Potentiometer value for arm to go over 12" barrier
-	int LOW = 1500;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
-	int BUMP = 1900;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
-	int HIGH = 2750;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
+	int BARRIER = 2450;	// Potentiometer value for arm to go over 12" barrier
+	int LOW = 1670;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
+	int BUMP = 1950;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
+	int HIGH = 3150;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
 	//int PRE_HIGH = 4000;// Just before stretched maximum reach
 
 	int hold = 30; // Arbitrary Numbers tested: 45 too high, 30 holds, 25 holds
@@ -299,21 +299,9 @@ void noRampSlow(int direction, int distance)
 
 	void lift(int targetPot)
 	{
-		int currentPot = SensorValue[RightArmAngle]; // takes current Arm Angle
-		while(currentPot != targetPot)
+		while(SensorValue[RightArmAngle] < targetPot)
 		{
-			if(currentPot < targetPot)
-			{
 				motor[LeftArm] = motor[RightArm] = 120;	 //goes up if lower
-			}
-
-			//else if(currentPot > targetPot)
-			//{
-			//	motor[LeftArm] = motor[RightArm] = -90;	//goes down if higher -- must test
-			//}
-
-			//wait1Msec(50);
-			currentPot = SensorValue[RightArmAngle];
 		}
 		motor[LeftArm] = motor[RightArm] = 0;
 	}
@@ -332,7 +320,6 @@ void noRampSlow(int direction, int distance)
 
 	  //  motor[LeftBWheel] = motor[LeftMWheel] = motor[LeftFWheel] =  30;
 			//motor[RightBWheel] = motor[RightMWheel] = motor[RightFWheel] = -30;
-
 		}
 		motor[LeftArm] = motor[RightArm] = 0;
 	}
@@ -459,7 +446,7 @@ void noRampSlow(int direction, int distance)
 		//moveStraight(-1, 0, 550);
 		moveStraight(-1, 0, 580);
 		//waitForButton();
-		wait10Msec(80):
+		wait10Msec(80);
 		moveStraight(1, 0, 950);
 		wait1Msec(300);
 		moveStraight(-1, 0, 950);
@@ -511,7 +498,7 @@ void noRampSlow(int direction, int distance)
 		//moveStraight(-1, 0, 550);
 		moveStraight(-1, 0, 580);
 		//waitForButton();
-		wait10Msec(80):
+		wait10Msec(80);
 		moveStraight(1, 0, 950);
 		wait1Msec(300);
 		moveStraight(-1, 0, 950);
@@ -765,6 +752,7 @@ void noRampSlow(int direction, int distance)
   {
   	deploy();
 
+  	/*
   	//moves forward, loading up with 3 buckies
   	wait10Msec(20);
     intakeSlow(1);
@@ -787,11 +775,11 @@ void noRampSlow(int direction, int distance)
 	  liftDown();
 
   	waitForButton();
-		moveStraight(1, 0, 1400); // maintenence and recalibrating needed
+		moveStraight(1, 0, 1400); // maintenence and recalibrating needed...1400 worked
 		wait10Msec(30);
 		lift(HIGH);
 		holdArm();//ABSOLUTELY DO NOT USE "holdArmHigh", it is what BROKE THE CODE (i think)
-		moveStraight(1, 0, 430); // reaches goal
+		moveStraight(1, 0, 430); // reaches goal...430 worked
 		//wait1Msec(1000);
 		intake(-1);
 		wait10Msec(150); // outtakes 3
@@ -801,17 +789,65 @@ void noRampSlow(int direction, int distance)
 
 		moveStraight(-1, 0, 1400);
 		waitForButton();
+		*/
+		intake(-1);
+		lift(BARRIER);
+		holdArm();
+		waitForButton();
+
+		moveStraight(1, 0, 550); // first ball
+		wait10Msec(30);
+		moveStraight(-1, 0, 500);
+		// first ball done
+
+		waitForButton();
 
 
-		//preps to return to hang zone
-		lift(BUMP - 50);
-		intake(0);
-	  holdArm();
+		moveStraight(1, 0, 920); // second ball
+		wait10Msec(50);
+		spin(1, 0, 400);
+		wait10Msec(50);
+		moveStraight(1, 0, 500);
+		wait10Msec(30);
+		moveStraight(-1, 0, 500);
+		// second ball done
 
-		moveStraight(-1,0,700);//hops bump to go back to hang zone
+		wait10Msec(30);
+		spin(-1, 0, 400);
+		wait10Msec(30);
 
 
 
+		moveStraight(1, 0, 920); // second ball
+		wait10Msec(50);
+		softSpin(1, 0, 400);
+		wait10Msec(50);
+		moveStraight(1, 0, 500);
+		wait10Msec(30);
+		moveStraight(-1, 0, 500);
+		// third ball done
+
+		wait10Msec(30);
+		spin(-1, 0, 400);
+		wait10Msec(30);
+
+		moveStraight(1, 0, 920); // fourth ball
+		wait10Msec(50);
+		softSpin(1, 0, 400);
+		wait10Msec(50);
+		moveStraight(1, 0, 500);
+		wait10Msec(30);
+		moveStraight(-1, 0, 500);
+		// fourth ball
+
+		wait10Msec(30);
+		spin(-1, 0, 400);
+		wait10Msec(30);
+
+		// 1840
+		// 2400
+		// 3160
+		//
 
 	}
 
