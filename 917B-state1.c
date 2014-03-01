@@ -1,8 +1,8 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    AutonSelect,    sensorPotentiometer)
 #pragma config(Sensor, in8,    RightArmAngle,  sensorPotentiometer)
-#pragma config(Sensor, dgtl1,  waitingButtonBlue, sensorTouch)
-#pragma config(Sensor, dgtl12, waitingButtonRed, sensorTouch)
+#pragma config(Sensor, dgtl1,  waitingButtonRed, sensorTouch)
+#pragma config(Sensor, dgtl12, waitingButtonBlue, sensorTouch)
 #pragma config(Sensor, I2C_1,  LeftIEM,        sensorQuadEncoderOnI2CPort,    , AutoAssign)
 #pragma config(Sensor, I2C_2,  RightIEM,       sensorQuadEncoderOnI2CPort,    , AutoAssign)
 #pragma config(Motor,  port1,           LeftArm,       tmotorVex393, openLoop)
@@ -53,14 +53,14 @@
 	int THIRTY_SEVEN = 48;
 	int TWENTY_FIVE = 32;
 
-	int control = 0;
+	int control = 10;
 ////////////////////
 //** Arm Values **//
 ////////////////////
-	int BARRIER = 2150;	// Potentiometer value for arm to go over 12" barrier
-	int LOW = 1400;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
-	int BUMP = 1600;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
-	int HIGH = 3000;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
+	int BARRIER = 2230;	// Potentiometer value for arm to go over 12" barrier
+	int LOW = 1500;			// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
+	int BUMP = 1900;			// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
+	int HIGH = 2750;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
 	//int PRE_HIGH = 4000;// Just before stretched maximum reach
 
 	int hold = 30; // Arbitrary Numbers tested: 45 too high, 30 holds, 25 holds
@@ -176,6 +176,40 @@ void noRamp(int direction, int distance)
 	}
 }
 
+void noRampFast(int direction, int distance)
+{
+	nMotorEncoder[LeftMWheel] = 0;
+	while(abs(nMotorEncoder[LeftMWheel]) < distance)
+	{
+		setLeft(direction*100); setRight(direction*100);
+	}
+	if(direction>0)
+	{
+		preciseDriveStop(FORWARD);
+	}
+	else
+	{
+		preciseDriveStop(BACKWARD);
+	}
+}
+
+void noRampSlow(int direction, int distance)
+{
+	nMotorEncoder[LeftMWheel] = 0;
+	while(abs(nMotorEncoder[LeftMWheel]) < distance)
+	{
+		setLeft(direction*30); setRight(direction*30);
+	}
+	if(direction>0)
+	{
+		preciseDriveStop(FORWARD);
+	}
+	else
+	{
+		preciseDriveStop(BACKWARD);
+	}
+}
+
 	// time is in milliseconds
 	// distance is in tenths of inches
 	// direction is 1 or -1 -- positive is forwards
@@ -270,17 +304,18 @@ void noRamp(int direction, int distance)
 		{
 			if(currentPot < targetPot)
 			{
-				motor[LeftArm] = motor[RightArm] = 127;	 //goes up if lower
+				motor[LeftArm] = motor[RightArm] = 120;	 //goes up if lower
 			}
 
-			else if(currentPot > targetPot)
-			{
-				motor[LeftArm] = motor[RightArm] = -127;	//goes down if higher -- must test
-			}
+			//else if(currentPot > targetPot)
+			//{
+			//	motor[LeftArm] = motor[RightArm] = -90;	//goes down if higher -- must test
+			//}
 
 			//wait1Msec(50);
 			currentPot = SensorValue[RightArmAngle];
 		}
+		motor[LeftArm] = motor[RightArm] = 0;
 	}
 	void liftTime(int direction, int time)
 	{
@@ -294,6 +329,9 @@ void noRamp(int direction, int distance)
 		while(SensorValue[RightArmAngle] > LOW)
 		{
 			motor[LeftArm] = motor[RightArm] = -127;
+
+	  //  motor[LeftBWheel] = motor[LeftMWheel] = motor[LeftFWheel] =  30;
+			//motor[RightBWheel] = motor[RightMWheel] = motor[RightFWheel] = -30;
 
 		}
 		motor[LeftArm] = motor[RightArm] = 0;
@@ -317,6 +355,10 @@ void noRamp(int direction, int distance)
 	void deploy()
 	{
 		intake(1);
+		motor[LeftArm] = motor[RightArm] = 100;
+		wait10Msec(10);
+		motor[LeftArm] = motor[RightArm] = 0;
+
 	}
 
 	void pickUpBall(int goals)
@@ -383,21 +425,32 @@ void noRamp(int direction, int distance)
 
 	}
 
+	void Bistromathics()
+	{
+		deploy();
+		intake(1);
+
+
+
+		noRampFast(1,2400);
+
+		lift(BARRIER-200);
+		holdArm();
+
+		intake(-1);
+
+
+		spin(1,0,400);
+		spin(-1,0,400);
+
+
+
+	}
+
 	void AlexAlt() // Caches preload (5) + Knocks 2 big balls (10)
 	{
 		deploy();
-		moveStraight(1, 0, 1600); // maintenence and recalibrating needed
-		liftTime(1,300);
-		holdArmHigh();
-		moveStraight(1, 0, 650); // reaches goal
-		//wait1Msec(1000);
-		intake(-1);
-		wait1Msec(500); // outtake
-		moveStraight(-1, 0, 400); //move back away from goal...Apparently Safety is greater than move forward
-		liftDown();
-			// end score bucky
-		moveStraight(-1, 0, 1400); // now user readjust for first ball
-		waitForButton();
+
 		lift(BARRIER);
 		holdArm();
 		intake(-1);
@@ -405,18 +458,15 @@ void noRamp(int direction, int distance)
 		wait1Msec(300);
 		//moveStraight(-1, 0, 550);
 		moveStraight(-1, 0, 580);
-		waitForButton();
+		//waitForButton();
+		wait10Msec(80):
 		moveStraight(1, 0, 950);
 		wait1Msec(300);
-		//moveStraight(-1, 0, 950);
 		moveStraight(-1, 0, 950);
-		resetValues(100);
-	}
 
 
-	void Alex() // Caches preload (5) + Knocks 2 big balls (10)
-	{
-		deploy();
+
+		wait10Msec(80);
 		moveStraight(1, 0, 1420); // maintenence and recalibrating needed
 		lift(HIGH); // nearest 100
 		holdArmHigh();
@@ -428,7 +478,31 @@ void noRamp(int direction, int distance)
 		liftDown();
 			// end score bucky
 		moveStraight(-1, 0, 1300); // now user readjust for first ballb
-		waitForButton();
+		//waitForButton();
+
+
+		resetValues(100);
+
+
+	}
+
+
+	void Alex() // Caches preload (5) + Knocks 2 big balls (10)
+	{
+		deploy();
+		moveStraight(1, 0, 1400); // maintenence and recalibrating needed
+		lift(HIGH); // nearest 100
+		holdArmHigh();
+		moveStraight(1, 0, 430); // reaches goal
+		//wait1Msec(1000);
+		intake(-1);
+		wait1Msec(500); // outtake
+		moveStraight(-1, 0, 400); //move back away from goal...Apparently Safety is greater than move forward
+		liftDown();
+			// end score bucky
+		moveStraight(-1, 0, 1300); // now user readjust for first ballb
+		//waitForButton();]
+		wait10Msec(80);
 		lift(BARRIER);
 		holdArm();
 		intake(-1);
@@ -436,10 +510,10 @@ void noRamp(int direction, int distance)
 		wait1Msec(300);
 		//moveStraight(-1, 0, 550);
 		moveStraight(-1, 0, 580);
-		waitForButton();
+		//waitForButton();
+		wait10Msec(80):
 		moveStraight(1, 0, 950);
 		wait1Msec(300);
-		//moveStraight(-1, 0, 950);
 		moveStraight(-1, 0, 950);
 		resetValues(100);
 	}
@@ -542,65 +616,64 @@ void noRamp(int direction, int distance)
 	void blueUdit()
 	{
 		deploy();
-		wait10Msec(70);
-		moveStraight(1, 0, 375); //picks up
+
+
+		wait10Msec(20);
+		moveStraight(1, 0, 440); //picks up
 		wait10Msec(50);
-		moveStraight(-1, 0, 375);//comes back
-		//intake(0)();
-		spin(1, 0, 450);
-		liftTime(1,300);
-		holdArm();
+		moveStraight(-1, 0, 440);//comes back
+		intake(1);
+
+		lift(HIGH);
+
+
+
 		waitForButton();
-		moveStraight(1, 0, (HALF_TILE));
+		liftDown();
+
+	  wait10Msec(30);
+
+		noRampFast(1,2000);
+		spin(1,0, 230);
+		//noRampFast(1,40);
+		lift(BUMP);
+		noRampSlow(-1,70);
+	  noRampFast(1,1100);
+
 		intake(-1);
-		wait10Msec(50);
-		intake(0);
-		spin(-1, 0, 150);
-		moveStraight(1, 0, (HALF_TILE));
-		pickUpBall(1);
-		spin(1, 0, 200);
-		//crossBump();
-		liftTime(1,300);
-		nMotorEncoder[LeftMWheel] = 0;
-		if(true)
-		{
-			setRight(127);
-			wait10Msec(10);
-			setLeft(127);
-		}
-		while (abs(nMotorEncoder[LeftMWheel]) < 500)
-		{
-			setRight(127); setLeft(127);
-		}
-		setRight(0); setLeft(0);
-		lift(BARRIER);
 		holdArm();
-		wait10Msec(30);
-		moveStraight(1, 0, 550);
-		intake(-1);
-		// end udit
-		resetValues(1000);
+		wait10Msec(130);
 	}
 
 	void redUdit()
 	{
 		deploy();
+
+
 		wait10Msec(20);
-		moveStraight(1, 0, 450); //picks up
+		moveStraight(1, 0, 440); //picks up
 		wait10Msec(50);
-		moveStraight(-1, 0, 450);//comes back
-		intake(0);
+		moveStraight(-1, 0, 440);//comes back
+		intake(1);
+
+		lift(HIGH);
+
+
 
 		waitForButton();
-		moveStraight(1, 0, (610));
-		spin(-1,0, 240);
-		moveStraight(1, 0, (575));
-		lift(BARRIER - 300);
-		holdArm();
-		intake(-1);
-		wait10Msec(130);
 		liftDown();
-		intake(0);
+
+	  wait10Msec(30);
+
+		noRampFast(1,1400);
+		spin(-1,0, 230);
+		//noRampFast(1,40);
+		lift(BUMP);
+	  noRampFast(1,1100);
+
+		intake(-1);
+		holdArm();
+		wait10Msec(130);
 
 	}
 	void blueBrian()
@@ -640,51 +713,104 @@ void noRamp(int direction, int distance)
 
 	}
 
-  void skills()
+	void RedBS()
+	{
+		deploy();
+
+
+		noRamp(1,500);
+		noRampSlow(1,500);
+		spin(-1,0, 230);
+		//noRampFast(1,40);
+		lift(BARRIER - 300);
+
+
+		moveStraight(1,0,700);//hops bump
+
+		wait10Msec(80);
+		lift(BARRIER);
+		holdArm();
+		moveStraight(1, 0, 580);
+		intake(-1);
+
+
+
+	}
+	void BlueBS()
+	{
+		deploy();
+
+
+		noRamp(1,500);
+		noRampSlow(1,500);
+		spin(1,0, 230);
+		//noRampFast(1,40);
+		lift(BARRIER - 300);
+
+
+		moveStraight(1,0,700);//hops bump
+
+		wait10Msec(80);
+		lift(BARRIER);
+		holdArm();
+		moveStraight(1, 0, 580);
+		intake(-1);
+
+
+
+	}
+
+
+  void Skills()
   {
   	deploy();
 
+  	//moves forward, loading up with 3 buckies
   	wait10Msec(20);
     intakeSlow(1);
 		moveStraight(1, 0, 430); //picks up
 		wait10Msec(50);
-		moveStraight(-1, 0, 430);//comes back
+		moveStraight(-1, 0, 400);//comes back
 		intake(1);
 
-
+		//lifts arms and crosses bumb backwards
 		lift(BUMP - 50);
-		holdArm();
-		moveStraight(-1,0,700);//hops bump
+		intake(0);
+	  holdArm();
 		waitForButton();
 
+		moveStraight(-1,0,700);//hops bump
+
+
+		//one button press to lower lift, another to send it to goal
+		waitForButton();
 	  liftDown();
-	  intake(0);
 
   	waitForButton();
 		moveStraight(1, 0, 1400); // maintenence and recalibrating needed
 		wait10Msec(30);
 		lift(HIGH);
-		holdArmHigh();
+		holdArm();//ABSOLUTELY DO NOT USE "holdArmHigh", it is what BROKE THE CODE (i think)
 		moveStraight(1, 0, 430); // reaches goal
 		//wait1Msec(1000);
 		intake(-1);
-		wait10Msec(150); // outtake
-		moveStraight(-1, 0, 400); //move back away from goal...Apparently Safety is greater than move forward
-		lift(LOW);
-		wait10Msec(50);
+		wait10Msec(150); // outtakes 3
+		moveStraight(-1, 0, 400); //move back away from goal
+		liftDown();
 
-		intake(0);
-			// end score bucky
-		moveStraight(-1, 0, 1400); // now user readjust for first ball
+
+		moveStraight(-1, 0, 1400);
 		waitForButton();
 
-		moveStraight(1,0,600);
-	  spin(1,0,200);
-	  lift(BARRIER);
-		holdArmHigh();
-		moveStraight(1, 0, 475);
-		wait10Msec(40);
-		moveStraight(-1, 0, 275);
+
+		//preps to return to hang zone
+		lift(BUMP - 50);
+		intake(0);
+	  holdArm();
+
+		moveStraight(-1,0,700);//hops bump to go back to hang zone
+
+
 
 
 	}
@@ -750,7 +876,7 @@ task autonomous()
 			}
 			else if(SensorValue[AutonSelect] < DEVANSH)
 			{
-				skills(); // safe 3-6
+				Bistromathics();
 		 	}
 			else{}
 			break;
@@ -758,11 +884,17 @@ task autonomous()
 		else if(SensorValue[waitingButtonBlue] == 1)
 		{
 			if(SensorValue[AutonSelect] < ALEX)
-			  Alex();
-			else if(SensorValue[AutonSelect] < UDIT)
+			{
+			  Skills();
+			}
+		  else if(SensorValue[AutonSelect] < UDIT)
+			{
 				blueUdit();
+			}
 			else if(SensorValue[AutonSelect] < DEVANSH)
-				skills();
+			{
+				Bistromathics();
+			}
 			else{}
 			break;
 		}
@@ -836,7 +968,7 @@ task usercontrol()
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*0; // can only go up now
 		else // Full Manual
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*127;
-/* -- prototype arm presets
+
 		if(vexRT[Btn8D] == 1) // left bottom button to set to barrier height, may need testing
 		{
 			while(SensorValue[RightArmAngle] != BARRIER)
@@ -849,7 +981,6 @@ task usercontrol()
 				break;
 			}
 		}
-		*/
 					/*
 		//prototype arm code
 		if (vexRT[Btn8U] == 1){
@@ -920,10 +1051,11 @@ task usercontrol()
 				motor[RightIntake] = motor[LeftIntake] = IntakePower;
 
 				if (vexRT[Btn8L] == 1){
-					Alex();
+					Skills();
 				}
+
 				if (vexRT[Btn8R] == 1){
-					deploy();
+					liftDown();
 				}
 
 	} // end while update loop
