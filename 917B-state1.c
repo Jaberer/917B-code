@@ -1005,7 +1005,7 @@ task usercontrol()
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*0; // can only go up now
 		else if(SensorValue[RightArmAngle] >= SAFETY_HIGH)
 		{
-			LiftPower = vexRT[Btn5U]*0 - vexRT[Btn5D]*127; // can only go down now
+			LiftPower = vexRT[Btn5U]*hold - vexRT[Btn5D]*127; // can only go down now
 		}
 		else // Full Manual
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*127;
