@@ -53,17 +53,18 @@
 	int THIRTY_SEVEN = 48;
 	int TWENTY_FIVE = 32;
 
-	int control = 10;
+	int control = 10;		// tested zero, too much control is bad.
 ////////////////////
 //** Arm Values **//
 ////////////////////
-	int BARRIER = 2450;	// Potentiometer value for arm to go over 12" barrier
-	int LOW = 20;				// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
-	int BUMP = 1950;		// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
+	int BARRIER = 1000;	// Potentiometer value for arm to go over 12" barrier
+	int LOW = 150;				// Potentiometer value for arm to reach minimum...Actual value is 550-590...Safety 600 is too high
+	int BUMP = 300;		// Lag between pinion and 60 tooth gear -> ranges 600-800...Safety 750
 	int HIGH = 1350;		// Ranges between 1750-1900, left is 1750 and right is 1880...Safety 1750
 	//int PRE_HIGH = 4000;// Just before stretched maximum reach
+	int SAFETY_HIGH = 1380; // don't go higher than this please
 
-	int hold = 30; // Arbitrary Numbers tested: 45 too high, 30 holds, 25 holds
+	int hold = 15; // Arbitrary Numbers tested: 45 too high, 30 holds, 25 holds...testing 15
 
 //////////////////////////
 //**** AUTON SELECT ****//
@@ -1002,6 +1003,10 @@ task usercontrol()
 			LiftPower = hold;
 		else if(SensorValue[RightArmAngle] <= LOW) //LOW Safety Limit
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*0; // can only go up now
+		else if(SensorValue[RightArmAngle] >= SAFETY_HIGH)
+		{
+			LiftPower = vexRT[Btn5U]*0 - vexRT[Btn5D]*127; // can only go down now
+		}
 		else // Full Manual
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*127;
 
@@ -1075,7 +1080,7 @@ task usercontrol()
 				//Set motors to each individual powers...
 				motor[RightBWheel] = RightDrivePower; // port 4
 				motor[RightMWheel] = RightDrivePower;		// port 3
-				motor[RightFWheel] = RightDrivePower;		// po?vrt 2
+				motor[RightFWheel] = RightDrivePower;		// port 2
 				//setRight(RightDrivePower);
 				motor[LeftFWheel] = LeftDrivePower;	// port 9
 				motor[LeftMWheel] = LeftDrivePower;	//port 8
@@ -1085,7 +1090,7 @@ task usercontrol()
 				motor[RightArm] = motor[LeftArm] = LiftPower;
 
 				motor[RightIntake] = motor[LeftIntake] = IntakePower;
-
+/*
 				if (vexRT[Btn8L] == 1){
 					Skills();
 				}
@@ -1093,7 +1098,7 @@ task usercontrol()
 				if (vexRT[Btn8R] == 1){
 					liftDown();
 				}
-
+*/
 	} // end while update loop
 } // end task usercontrol
 
