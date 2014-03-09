@@ -332,7 +332,7 @@ void noRampSlow(int direction, int distance)
 
 	void holdArmHigh()
 	{
-		motor[LeftArm] = motor[RightArm] = 100;
+		motor[LeftArm] = motor[RightArm] = 80;
 	}
 
 	void waitForButton()
@@ -343,9 +343,7 @@ void noRampSlow(int direction, int distance)
 	void deploy()
 	{
 		intake(1);
-		motor[LeftArm] = motor[RightArm] = 100;
-		wait10Msec(10);
-		motor[LeftArm] = motor[RightArm] = 0;
+		wait10Msec(100);
 
 	}
 
@@ -438,7 +436,7 @@ void noRampSlow(int direction, int distance)
 	void AlexAlt() // Caches preload (5) + Knocks 2 big balls (10)
 	{
 		deploy();
-
+	wait10Msec(100);
 		lift(BARRIER);
 		holdArm();
 		intake(-1);
@@ -477,10 +475,14 @@ void noRampSlow(int direction, int distance)
 
 	void Alex() // Caches preload (5) + Knocks 2 big balls (10)
 	{
-		deploy();
+		//deploy();
+
+		//waitForButton();
+
 		moveStraight(1, 0, 1400); // maintenence and recalibrating needed
 		lift(HIGH); // nearest 100
 		holdArmHigh();
+
 		moveStraight(1, 0, 430); // reaches goal
 		//wait1Msec(1000);
 		intake(-1);
@@ -922,7 +924,7 @@ task autonomous()
 		{
 			if(SensorValue[AutonSelect] < ALEX)
 			{
-			  Skills();
+			  Alex();
 			}
 		  else if(SensorValue[AutonSelect] < UDIT)
 			{
@@ -1003,10 +1005,10 @@ task usercontrol()
 			LiftPower = hold;
 		else if(SensorValue[RightArmAngle] <= LOW) //LOW Safety Limit
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*0; // can only go up now
-		else if(SensorValue[RightArmAngle] >= SAFETY_HIGH)
+		/*else if(SensorValue[RightArmAngle] >= SAFETY_HIGH)
 		{
 			LiftPower = vexRT[Btn5U]*hold - vexRT[Btn5D]*127; // can only go down now
-		}
+		}*/
 		else // Full Manual
 			LiftPower = vexRT[Btn5U]*127 - vexRT[Btn5D]*127;
 
@@ -1090,11 +1092,11 @@ task usercontrol()
 				motor[RightArm] = motor[LeftArm] = LiftPower;
 
 				motor[RightIntake] = motor[LeftIntake] = IntakePower;
-/*
-				if (vexRT[Btn8L] == 1){
-					Skills();
-				}
 
+				if (vexRT[Btn8L] == 1){
+					Alex();
+				}
+/*
 				if (vexRT[Btn8R] == 1){
 					liftDown();
 				}
@@ -1105,3 +1107,4 @@ task usercontrol()
 task Joseph()
 {
 }
+//david is awesome
