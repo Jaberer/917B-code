@@ -1,3 +1,4 @@
+#pragma config(UART_Usage, UART2, uartNotUsed, baudRate4800, IOPins, None, None)
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    AutonSelect,    sensorPotentiometer)
 #pragma config(Sensor, in8,    RightArmAngle,  sensorPotentiometer)
@@ -100,29 +101,6 @@
 	}
 
 // Auton Functions here
-	int goalTicks(int tenthsOfInches)
-	{
-	/**************************
-time
-		600 milliseconds is ~1-1.5 tiles
-ticks
-		28 ticks undershoot / inch
-		29 overshoot / inch
-		28.5 average
-		28.64791 theory / inch
-		2865 / 100 inches
-		342 ticks per half tile
-		684 ticks per tile
-		TICKS/DEGREE TO BE DETERMINED
-distance
-		1 tile = 24"
-		0.5 tile = 12"
-theory
-		(360 deg / inches circumference) * inches goalDistance = EncoderTicks
-	**************************/
-		return (TICK_THEORY * tenthsOfInches) / 1000;
-	}
-
 	void setLeft(int pwr)
 	{
 		motor[LeftBWheel] = motor[LeftMWheel] = motor[LeftFWheel] = pwr;
@@ -164,56 +142,56 @@ theory
 		wait1Msec(1000); // stabilization time
 	}
 
-void noRamp(int direction, int distance)
-{
-	nMotorEncoder[LeftMWheel] = 0;
-	while(abs(nMotorEncoder[LeftMWheel]) < distance)
+	void noRamp(int direction, int distance)
 	{
-		setLeft(direction*FIFTY); setRight(direction*FIFTY);
+		nMotorEncoder[LeftMWheel] = 0;
+		while(abs(nMotorEncoder[LeftMWheel]) < distance)
+		{
+			setLeft(direction*FIFTY); setRight(direction*FIFTY);
+		}
+		if(direction>0)
+		{
+			preciseDriveStop(FORWARD);
+		}
+		else
+		{
+			preciseDriveStop(BACKWARD);
+		}
 	}
-	if(direction>0)
-	{
-		preciseDriveStop(FORWARD);
-	}
-	else
-	{
-		preciseDriveStop(BACKWARD);
-	}
-}
 
-void noRampFast(int direction, int distance)
-{
-	nMotorEncoder[LeftMWheel] = 0;
-	while(abs(nMotorEncoder[LeftMWheel]) < distance)
+	void noRampFast(int direction, int distance)
 	{
-		setLeft(direction*100); setRight(direction*100);
+		nMotorEncoder[LeftMWheel] = 0;
+		while(abs(nMotorEncoder[LeftMWheel]) < distance)
+		{
+			setLeft(direction*100); setRight(direction*100);
+		}
+		if(direction>0)
+		{
+			preciseDriveStop(FORWARD);
+		}
+		else
+		{
+			preciseDriveStop(BACKWARD);
+		}
 	}
-	if(direction>0)
-	{
-		preciseDriveStop(FORWARD);
-	}
-	else
-	{
-		preciseDriveStop(BACKWARD);
-	}
-}
 
-void noRampSlow(int direction, int distance)
-{
-	nMotorEncoder[LeftMWheel] = 0;
-	while(abs(nMotorEncoder[LeftMWheel]) < distance)
+	void noRampSlow(int direction, int distance)
 	{
-		setLeft(direction*30); setRight(direction*30);
+		nMotorEncoder[LeftMWheel] = 0;
+		while(abs(nMotorEncoder[LeftMWheel]) < distance)
+		{
+			setLeft(direction*30); setRight(direction*30);
+		}
+		if(direction>0)
+		{
+			preciseDriveStop(FORWARD);
+		}
+		else
+		{
+			preciseDriveStop(BACKWARD);
+		}
 	}
-	if(direction>0)
-	{
-		preciseDriveStop(FORWARD);
-	}
-	else
-	{
-		preciseDriveStop(BACKWARD);
-	}
-}
 
 	// time is in milliseconds
 	// distance is in tenths of inches
@@ -858,41 +836,6 @@ void noRampSlow(int direction, int distance)
 
 	}
 
-	/*
-	*/
-
-	void autonHangZoneAggro()
-	{
-
-	}
-
-	void autonHangZoneDef()
-	{
-
-	}
-
-	void autonMiddleZoneAggro()
-	{
-
-
-	}
-
-	void autonMiddleZoneDef()
-	{
-
-	}
-
-	void autonCustom()
-	{
-
-	}
-
-	void autonProgrammingSkills()
-	{
-
-	}
-
-
 	void autonTest()
 	{
 		redDevansh();
@@ -945,10 +888,10 @@ task autonomous()
 }
 
 // booleans for arm raising
-bool raiseArmBump = false;
-bool raiseArmBarrier = false;
-bool raiseArmHigh = false;
-int armDirection = 0;
+	bool raiseArmBump = false;
+	bool raiseArmBarrier = false;
+	bool raiseArmHigh = false;
+	int armDirection = 0;
 
 
 task usercontrol()
@@ -1110,7 +1053,7 @@ task usercontrol()
 
 			if(vexRT[Btn8D])
 			{
-				toggleLaunch= false;
+				toggleLaunch = false;
 			}
 
 
@@ -1124,7 +1067,7 @@ task usercontrol()
 
 			if(vexRT[Btn8L])
 			{
-				toggleHang= false;
+				toggleHang = false;
 			}
 
 
