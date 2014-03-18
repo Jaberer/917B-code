@@ -2,6 +2,10 @@
 #pragma config(Sensor, in1,    AutonSelect,    sensorPotentiometer)
 #pragma config(Sensor, in8,    RightArmAngle,  sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  waitingButtonRed, sensorTouch)
+#pragma config(Sensor, dgtl4,  leftHang,       sensorDigitalOut)
+#pragma config(Sensor, dgtl5,  leftLaunch,     sensorDigitalOut)
+#pragma config(Sensor, dgtl6,  rightLaunch,    sensorDigitalOut)
+#pragma config(Sensor, dgtl7,  rightHang,      sensorDigitalOut)
 #pragma config(Sensor, dgtl12, waitingButtonBlue, sensorTouch)
 #pragma config(Sensor, I2C_1,  LeftIEM,        sensorQuadEncoderOnI2CPort,    , AutoAssign)
 #pragma config(Sensor, I2C_2,  RightIEM,       sensorQuadEncoderOnI2CPort,    , AutoAssign)
@@ -1069,16 +1073,67 @@ task usercontrol()
 		//////////////////////////
 			IntakePower = vexRT[Btn6U]*127 - vexRT[Btn6D]*127;
 
+		/////////////////////////////
+		//*** Pneumatic Control ***//
+		/////////////////////////////
+			//SensorValue[leftLaunch] = SensorValue[rightLaunch] = vexRT[Btn8U]; // basic holding
+
+			/*
+			// Toggle Solenoid Control - Up for 1 and Down for 0
+
+			*/
+			/**
+			bool toggleSolenoid = false;
+
+			// Logic: Up - 1, Down - 0, Both - 0
+			if(vexRT[Btn8U] && !vexRT[Btn8D])
+			{
+				toggleSolenoid = true;
+			}
+
+
+			SensorValue[leftLaunch] = SensorValue[rightLaunch] = toggleSolenoid;
+			*/
+			//test counter toggle... above fails
+			/*
+			int counter = 0;
+			// logic: even numbers -> 0, odd -> 1
+			SensorValue[leftLaunch] = SensorValue[rightLaunch] = (counter % 2);
+*/
+
+		// v 3 FOR LAUNCHING
+			bool toggleLaunch;
+			if(vexRT[Btn8U] && !vexRT[Btn8D])
+			{
+				toggleLaunch = true;
+			}
+
+			if(vexRT[Btn8D])
+			{
+				toggleLaunch= false;
+			}
+
+
+
+	// for hanging
+			bool toggleHang;
+			if(vexRT[Btn8R] && !vexRT[Btn8L])
+			{
+				toggleHang = true;
+			}
+
+			if(vexRT[Btn8L])
+			{
+				toggleHang= false;
+			}
+
+
+
 
 		/*************************
 		****** TESTING AREA ******
 		*************************/
-/*
-				if(vexRT[Btn8L] == 1) // comment this before competition
-				{
-					autonTest();
-				}
-*/
+
 				//Set motors to each individual powers...
 				motor[RightBWheel] = RightDrivePower; // port 4
 				motor[RightMWheel] = RightDrivePower;		// port 3
@@ -1087,24 +1142,20 @@ task usercontrol()
 				motor[LeftFWheel] = LeftDrivePower;	// port 9
 				motor[LeftMWheel] = LeftDrivePower;	//port 8
 				motor[LeftBWheel] = LeftDrivePower;	//port 7
+				// ports have changed.... uh... lol idk if above is still correct
 				//setLeft(LeftDrivePower);
 
 				motor[RightArm] = motor[LeftArm] = LiftPower;
 
 				motor[RightIntake] = motor[LeftIntake] = IntakePower;
 
-				if (vexRT[Btn8L] == 1){
-					Alex();
-				}
-/*
-				if (vexRT[Btn8R] == 1){
-					liftDown();
-				}
-*/
+				//Set solenoids to individual powers;
+				SensorValue[leftLaunch] = SensorValue[rightLaunch] = toggleLaunch;
+				SensorValue[leftHang] = SensorValue[rightHang] = toggleHang;
+
 	} // end while update loop
 } // end task usercontrol
 
 task Joseph()
 {
 }
-//david is awesome
